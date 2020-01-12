@@ -1,0 +1,146 @@
+{% extends "template_column.html" %}
+
+{% block title %}
+{{choice["title_unesc"]}}
+{% end %}
+
+{% block bar %}
+<h1 class="padding title">{{choice['title_unesc']}}</h1>
+{% end %}
+
+{% block left %}
+    {% module TileProfile(user) %}
+    <a href="/home"><div class="option hover">{{translate("Home")}}</div></a>
+    <a href="/group/{{group['id']}}"><div class="option hover">{{group['name_unesc']}}</div></a>
+    <a href="/poll/{{poll['id']}}"><div class="option hover">{{poll['title_unesc']}}</div></a>
+    {% if poll['phase']<2 %}<a href="/choice_vote_delete/{{choice["id"]}}/choice"><div class="option hover" id="reset_choice" {% if choice['vote'] is None %}style="display:none"{% end %}>{{translate("Delegate Vote")}}</div></a>{% end %}
+    {% if choice['authorId'] == user['id'] %}
+        <div class="option hline"></div>
+        <div class="option_category">{{translate("Author Options")}}</div>
+        {% if poll['phase']==0 %}<a href="/choice_settings/{{choice['id']}}"><div class="option hover">{{translate("Choice Settings")}}</div></a>{% end %}
+        <a onclick="if(confirm('do you really want to delete this choice?')){window.location.href='/choice_delete/{{choice['id']}}'}" style="cursor:pointer"><div class="option hover">{{translate("Delete Choice")}}</div></a>
+    {% elif is_admin %}
+        <div class="option hline"></div>
+        <div class="option_category">{{translate("Admin Options")}}</div>
+        <a onclick="if(confirm('do you really want to delete this choice?')){window.location.href='/choice_delete/{{choice['id']}}'}" style="cursor:pointer"><div class="option hover">{{translate("Delete Choice")}}</div></a>
+    {% end %}
+{% end %}
+
+{% block center %}
+    {% if choice["authorId"] == user["id"] and poll['phase']==0 %}
+        <div class="centered icon"><a href="/choice_settings/{{choice['id']}}"><img class="icon" src="{{ static_url(choice["icon"]) }}"></a></div>
+    {% else %}
+        <div class="centered icon"><img class="icon" src="{{ static_url(choice["icon"]) }}"></div>
+    {% end %}
+    
+    <div class="tile centered">
+        <div style="padding-bottom:5px;width:100%;font-weight:bold;color:rgb(100,100,100)">{% if poll['secret'] %}{{translate("Secret")}}{% else %}{{translate("Not Secret")}}{% end %}, {% if poll['phase']==0 %}{{translate("Open")}}{% elif poll['phase']==1 %}{{translate("Voting")}}{% else %}{{translate("Closed")}}{% end %}</div>
+        <div class="timestamp"><a href="/user/{{choice['authorUsername']}}">{{choice["authorName_unesc"]}}, {{ choice["timestamp"] }}</a></div>
+        <div class="body" style="padding:0;width:100%">{% raw choice["description"] %}</div>
+        <form id="form_choice_{{choice["id"]}}" action="/choice_vote/{{choice["id"]}}/choice" method="post">
+            {% if choice['vote'] is not None %}
+            <div class="slider_label" id="slider_label_{{choice["id"]}}">{{translate("Direct Vote")}}: {{round(choice["vote"],3)}} {% if choice["vote"]<-1/3 %}(CONTRA){% elif choice["vote"]<1/3 %}(NEUTRAL){% else %}(PRO){%end%}</div>
+            <input type="range" min="-1" max="1" value="{{choice["vote"]}}" id="slider_{{choice["id"]}}" class="slider" step="any" name="vote" onmouseup="update_slider({{choice['id']}})" ontouchend="update_slider({{choice['id']}})" style="margin-top:7px;{% if poll['phase']==2 %}pointer-events:none{% end %}">
+            {% else %}
+            <div class="slider_label" id="slider_label_{{choice["id"]}}">{{translate("Delegated Vote")}}{% if poll['phase']<2 %} ({{translate("click below to vote directly")}}){% end %}</div>
+            <input type="range" min="-1" max="1" value="0" id="slider_{{choice["id"]}}" class="slider untouched" step="any" name="vote" onmouseup="update_slider({{choice['id']}});this.classList.remove('untouched');document.getElementById('reset_choice').style='display:auto'" ontouchend="update_slider({{choice['id']}});this.classList.remove('untouched');document.getElementById('reset_choice').style='display:auto'" style="margin-top:7px;{% if poll['phase']==2 %}pointer-events:none{% end %}">
+            {% end %}
+            {% module xsrf_form_html() %}
+        </form>
+    </div>
+    
+    {% if details is not None%}
+        <div class="centered hline"></div>
+        <div class="centered category">{{translate("Evaluation")}}</div>
+        <div class="tile centered" style="padding-top:5px">
+            <div class="timestamp">{{details['timestamp']}}</div>
+            <br>
+            <div class="title">
+            <table style="width: 100%">
+            {% if poll['secret'] %}
+                {% for result in details['results'] %}
+                    {% if result['user']['username'] == user['username'] and result['weight'] != 0 %}
+                        <tr>
+                        <th style="text-align:left">{{translate("Your Vote")}}</th>
+                        <th style="text-align:right">{{round(result['value'],3)}}</th>
+                        </tr>
+                        <tr>
+                        <th style="text-align:left">{{translate("Vote Weight")}}</th>
+                        <th style="text-align:right">{{round(result['weight'],3)}}</th>
+                        </tr>
+                    {% end %}
+                {% end %}
+                <tr>
+                <th style="text-align:left">{{translate("Participation")}}</th>
+                <th style="text-align:right">{{details['n_direct_votes']}} / {{details['n_direct_votes']+details['n_indirect_votes']}}</th>
+                </tr>
+            {% end %}
+            <tr>
+            <th style="text-align:left">{{translate("Result")}}</th>
+            <th style="text-align:right">{{round(details['result'],3)}}</th>
+            </tr>
+            </table>
+            </div>
+            
+            {% if not poll['secret'] %}
+                {% if details['n_direct_votes'] != 0 %}
+                    <br>
+                    <div class="title">{{translate("Direct Votes")}} ({{details['n_direct_votes']}}/{{details['n_direct_votes']+details['n_indirect_votes']}})</div>
+                    <table style="width: 100%">
+                        <tr>
+                        <th style="text-align:left">{{translate("Name")}}</th>
+                        <th style="text-align:right">{{translate("Vote Weight")}}</th>
+                        <th style="text-align:right">{{translate("Vote")}}</th>
+                        </tr>
+                    {% for i in range(details['n_direct_votes']) %}
+                        <tr>
+                        <th style="font-weight:normal;text-align:left"><a href="/user/{{details['results'][i]['user']['username']}}">{{details['results'][i]['user']['name']}}</a></th>
+                        <th style="font-weight:normal;text-align:right">{{round(details['results'][i]['weight'],3)}}</th>
+                        <th style="font-weight:normal;text-align:right">{{round(details['results'][i]['value'],3)}}</th>
+                        </tr>
+                    {% end %}
+                    </table>
+                {% end %}
+                {% if details['n_indirect_votes'] != 0 %}
+                    <br>
+                    <div class="title">{{translate("Indirect Votes")}} ({{details['n_indirect_votes']}}/{{details['n_direct_votes']+details['n_indirect_votes']}})</div>
+                    <table style="width: 100%">
+                        <tr>
+                        <th style="text-align:left">{{translate("Name")}}</th>
+                        <th style="text-align:right">{{translate("Vote")}}</th>
+                        </tr>
+                    {% for i in range(details['n_direct_votes'],details['n_direct_votes']+details['n_indirect_votes']) %}
+                        <tr>
+                        <th style="font-weight:normal;text-align:left"><a href="/user/{{details['results'][i]['user']['username']}}">{{details['results'][i]['user']['name']}}</a></th>
+                        <th style="font-weight:normal;text-align:right">{{round(details['results'][i]['value'],3)}}</th>
+                        </tr>
+                    {% end %}
+                    </table>
+                {% end %}
+            {% end %}
+        </div>
+    {% end %}
+    
+    <div class="centered hline"></div>
+    <div class="centered category">{{translate("Comments")}}<div class="plus" onclick="window.location.href='/comment_create/choice/{{choice['id']}}'"></div></div>
+    {% for comment in comments %}
+        {% module TileComment(comment) %}
+    {% end %}
+    <br>
+{% end %}
+
+{% block right %}
+    <input id="member_search" type="text" placeholder="search" style="width:calc(100% - 30px);margin: 15px 10px 15px 10px;" onkeyup="send_ajax('/user_search_ajax',{groupId:{{group['id']}},search:this.value},update_users_handler)">
+    <div id="users" class="column">
+    {% for member in members %}
+        {% module TileMember(member,group) %}
+    {% end %}
+    </div>
+{% end %}
+
+{% block script %}
+<script>
+min_left_column_width = 300
+min_right_column_width = 300
+</script>
+{% end %}

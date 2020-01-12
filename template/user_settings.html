@@ -1,0 +1,99 @@
+{% extends "template_center.html" %}
+
+{% block title %}
+{{translate("User Settings")}}
+{% end %}
+
+{% block center %}
+<div style="overflow:hidden">
+    <h1 style="float:left">{{translate("Settings")}}</h1>
+    <h1 style="float:right;color:rgb(100,100,100);"><a href="/user/{{user['username']}}">- {{user['username']}}</a></h1>
+</div>
+
+<form enctype="multipart/form-data" id="form" action="user_settings" method="post">
+    <p1>{{translate("Name")}}</p1><br>
+    <p1 class="remark" id="name_remark"></p1>
+    <input type="text" name="name" placeholder="{{user['name_unesc']}}" id="name" onchange="check_name()" onkeyup="check_name()">
+    <p1>{{translate("Password")}}</p1><br>
+    <p1 class="remark" id="password1_remark"></p1>
+    <input type="password" name="password1" placeholder="new password" id="password1" onchange="check_password1()" onkeyup="check_password1()">
+    <p1>{{translate("Repeat Password")}}</p1><br>
+    <p1 class="remark" id="password2_remark"></p1>
+    <input type="password" name="password2" placeholder="new password" id="password2" onchange="check_password2()" onkeyup="check_password2()">
+    <p1>{{translate("E-mail")}}</p1><br>
+    <p1 class="remark" id="email_remark"></p1>
+    <input type="email" name="email" id="email" placeholder="{{user['email']}}" onchange="check_email()" onkeyup="check_email()">
+    <p1>{{translate("Picture")}}</p1><br>
+    <input type="file" name="picture" id="picture" accept="image/x-png,image/gif,image/jpg">
+    <!--label for="file">choose a file</label-->
+    <!--p1>{{translate("Language")}}</p1><br>
+    <select id="language" name="language">
+    <option value="en" {% if translate("language_ID") == "en" %} selected="selected" {% end %}>English</option>
+    <option value="de" {% if translate("language_ID") == "de" %} selected="selected" {% end %}>Deutsch</option>
+    </select-->
+    <p1>{{translate("Description")}}</p1>
+    <textarea name="description">{{user['description_unesc']}}</textarea>
+    <input type="button" value="{{translate('Save')}}" onclick="submit_settings();disable_inputs()">
+    <input type="button" value="{{translate('Cancel')}}" onclick="javascript:history.back()">
+    {% module xsrf_form_html() %}
+</form>
+{% end %}
+
+{% block script %}
+<script>
+function submit_settings(){
+    if(check_password1()&&check_password2()&&check_email()){
+        document.getElementById('form').submit()
+    }
+}
+function check_email(){
+    email = document.getElementById("email").value;
+    if(email==""){
+        document.getElementById("email_remark").innerHTML="";
+        return true;
+    }
+    if(!validEmail(email)){
+        document.getElementById("email_remark").innerHTML="please enter a valid email";
+        return false;
+    }else{
+        document.getElementById("email_remark").innerHTML="";
+        return true;
+    }
+}
+function check_password1(){
+    pw = document.getElementById("password1").value;
+    if(pw==""){
+        document.getElementById("password1_remark").innerHTML="";
+        return true;
+    }
+    if(!validPassword(pw)){
+        document.getElementById("password1_remark").innerHTML="password must consist of at least 8 letters, a lower and an upper case character and a digit";
+        return false;
+    }else{
+        document.getElementById("password1_remark").innerHTML="";
+        return true;
+    }
+}
+function check_password2(){
+    pw1 = document.getElementById("password1").value;
+    pw2 = document.getElementById("password2").value;
+    if(pw2==""&&pw1==""){
+        document.getElementById("password2_remark").innerHTML="";
+        return true;
+    }
+    if(pw1 != pw2){
+        document.getElementById("password2_remark").innerHTML="passwords must be equal";
+        return false;
+    }else{
+        document.getElementById("password2_remark").innerHTML="";
+        return true;
+    }
+}
+{% set alert = globals().get('alert', None) %}
+{% if alert is not None %}
+    alert("{{alert}}")
+{% end %}
+</script>
+<script src="{{static_url("cookie.js")}}"></script>
+<script src="{{static_url("input_script.js")}}"></script>
+{% end %}

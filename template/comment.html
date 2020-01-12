@@ -1,0 +1,53 @@
+{% extends "template_column.html" %}
+
+{% block title %}
+{{translate("Comment")}}
+{% end %}
+
+{% block bar %}
+<h1 class="padding title">{{translate("Comment")}}</h1>
+{% end %}
+
+{% block left %}
+    {% module TileProfile(user) %}
+    <a href="/home"><div class="option hover">{{translate("Home")}}</div></a>
+    <div class="option hline"></div>
+    <div class="option_category">{{translate("Tags")}}</div>
+    {% for tag in comment['tags'] %}
+        <a href="/{{tag['link']}}/{{tag['id']}}"><div class="option hover">{{tag['tag_unesc']}}</div></a>
+    {% end %}
+    {% if comment['authorId'] == user['id'] %}
+        <div class="option hline"></div>
+        <div class="option_category">{{translate("Author Options")}}</div>
+        <a onclick="if(confirm('do you really want to delete this comment?')){window.location.href='/comment_delete/{{comment['id']}}'}" style="cursor:pointer"><div class="option hover">{{translate("Delete Comment")}}</div></a>
+    {% end %}
+{% end %}
+
+{% block center %}
+    <br>
+    <div class="tile centered">
+        <div class="timestamp"><a href="/user/{{comment['authorUsername']}}">{{comment["authorName_unesc"]}}, {{ comment["timestamp"] }}</a></div>
+        <div style="padding:0;width:100%" class="body">{% raw comment["content"] %}</div>
+    </div>
+    <div class="centered hline"></div>
+    <div class="centered category">{{translate("Comments")}}<div class="plus" onclick="window.location.href='/comment_create/comment/{{comment['id']}}'"></div></div>
+    {% for c in comments %}
+        {% module TileComment(c) %}
+    {% end %}
+{% end %}
+
+{% block right %}
+    <input id="member_search" type="text" placeholder="search" style="width:calc(100% - 30px);margin: 15px 10px 15px 10px;" onkeyup="send_ajax('/user_search_ajax',{groupId:{{group['id']}},search:this.value},update_users_handler)">
+    <div id="users" class="column">
+    {% for member in members %}
+        {% module TileMember(member,group) %}
+    {% end %}
+    </div>
+{% end %}
+
+{% block script %}
+<script>
+min_left_column_width = 300
+min_right_column_width = 300
+</script>
+{% end %}

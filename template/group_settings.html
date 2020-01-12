@@ -1,0 +1,32 @@
+{% extends "template_center.html" %}
+
+{% block title %}
+{{translate("Group Settings")}}
+{% end %}
+
+{% block center %}
+<div style="overflow:hidden">
+    <h1 style="float:left">{{translate("Group")}}</h1>
+</div>
+
+<form enctype="multipart/form-data" id="form" action="/group_settings/{{group['id']}}" method="post">
+    <p1>{{translate("Name")}}</p1>
+    <input type="text" name="name" placeholder="{{group['name_unesc']}}">
+    <p1>{{translate("Motto")}}</p1>
+    <input type="text" name="motto" placeholder="{{group['motto_unesc']}}">
+    <p1>{{translate("Picture")}}</p1><br>
+    <input type="file" name="picture" id="picture" accept="image/x-png,image/gif,image/jpg">
+    <p1>{{translate("Description")}}</p1>
+    <textarea name="description">{{group['description_unesc']}}</textarea>
+    <input type="checkbox" id="mccp" name="mccp" {% if group['pollCreatorLevel']<=1%}checked{% end %}><label for="mccp">{{translate("Members can create polls")}}</label><div style="min-height:7px;min-width:100%;"></div>
+    <input type="button" value="{{translate('Save')}}" onclick="document.getElementById('form').submit();disable_inputs()">
+    <input type="button" value="{{translate('Cancel')}}" onclick="javascript:history.back()">
+    {% module xsrf_form_html() %}
+</form>
+
+{% end %}
+
+{% block script %}
+<script src="{{static_url("cookie.js")}}"></script>
+<script src="{{static_url("input_script.js")}}"></script>
+{% end %}

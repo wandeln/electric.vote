@@ -1,0 +1,173 @@
+{% extends "template_column.html" %}
+
+{% block title %}
+{{poll["title_unesc"]}}
+{% end %}
+
+{% block style %}
+<script src="{{static_url("Chart.js")}}"></script>
+{% end %}
+
+{% block bar %}
+<h1 class="padding title">{{poll['title_unesc']}}</h1>
+{% end %}
+
+{% block left %}
+    {% module TileProfile(user) %}
+    <a href="/home"><div class="option hover">{{translate("Home")}}</div></a>
+    <a href="/group/{{group['id']}}"><div class="option hover">{{group['name_unesc']}}</div></a>
+    {% if poll['phase']==0 and poll['choiceCreatorLevel']==1 %}
+        <a href="/choice_create/{{poll['id']}}"><div class="option hover">{{translate("Create Choice")}}</div></a>
+    {% end %}
+    {% if poll["authorId"] == user["id"] %}
+        <div class="option hline"></div>
+        <div class="option_category">{{translate("Author Options")}}</div>
+        {% if poll['phase']<2 %}<a href="/poll_evaluate/{{poll['id']}}"><div class="option hover">{{translate("Evaluate")}}</div></a>{% end %}
+        {% if poll['phase']==0 %}<a href="/poll_settings/{{poll['id']}}"><div class="option hover">{{translate("Poll Settings")}}</div></a>
+        {% if poll['phase']==0 and poll['choiceCreatorLevel']>1 %}
+        <a href="/choice_create/{{poll['id']}}"><div class="option hover">{{translate("Create Choice")}}</div></a>{% end %}{% end %}
+    {% elif is_admin %}
+        <div class="option hline"></div>
+        <div class="option_category">{{translate("Admin Options")}}</div>
+        {% if poll['phase']==0 and poll['choiceCreatorLevel']>1 %}
+        <a href="/choice_create/{{poll['id']}}"><div class="option hover">{{translate("Create Choice")}}</div></a>{% end %}
+        {% if poll['phase']<2 %}<a href="/poll_evaluate/{{poll['id']}}"><div class="option hover">{{translate("Evaluate")}}</div></a>{% end %}
+    {% end %}
+    
+    {% if poll["authorId"] == user["id"] or is_admin %}
+        {% if poll['phase']==0 %}
+            <a onclick="if(confirm('after freezing choices, neither the poll nor the choices can be changed anymore. Do you want to move on with voting phase? (this can\'t be made undone)')){window.location.href='/poll_set_phase/{{poll['id']}}/1'}" style="cursor:pointer"><div class="option hover">{{translate("Freeze Choices")}}</div></a>
+        {% elif poll['phase']==1 %}
+            <a onclick="if(confirm('after freezing votes, no votes can\'t be given anymore. Do you want to move on and finish the poll? (this can\'t be made undone)')){window.location.href='/poll_set_phase/{{poll['id']}}/2'}" style="cursor:pointer"><div class="option hover">{{translate("Freeze Votes")}}</div></a>
+        {% end %}
+        <a onclick="if(confirm('do you really want to delete this poll? (this can\'t be made undone)')){window.location.href='/poll_delete/{{poll['id']}}'}" style="cursor:pointer"><div class="option hover">{{translate("Delete Poll")}}</div></a>
+    {% end %}
+    
+{% end %}
+
+{% block center %}
+    {% if poll["authorId"] == user["id"] and poll['phase']==0 %}
+        <div class="centered icon"><a href="/poll_settings/{{poll['id']}}"><img class="icon" src="{{ static_url(poll["icon"]) }}"></a></div>
+    {% else %}
+        <div class="centered icon"><img class="icon" src="{{ static_url(poll["icon"]) }}"></div>
+    {% end %}
+    <div class="centered">
+        <div style="padding-bottom:5px;width:100%;font-weight:bold;color:rgb(100,100,100)">{% if poll['secret'] %}{{translate("Secret")}}{% else %}{{translate("Not Secret")}}{% end %}, {% if poll['phase']==0 %}{{translate("Open")}}{% elif poll['phase']==1 %}{{translate("Voting")}}{% else %}{{translate("Closed")}}{% end %}</div>
+        <div class="timestamp"><a href="/user/{{poll['authorUsername']}}">{{poll["authorName_unesc"]}}, {{ poll["timestamp"] }}</a></div>
+        <div class="description">{% raw poll["description"] %}</div>
+    </div>
+    {% if evaluation is not None %}
+        <div class="centered hline"></div>
+        <div class="centered category" style="margin-bottom:5px">{{translate("Evaluation")}}</div>
+        <div class="tile centered" style="padding-top:5px">
+            <div class="timestamp">{{evaluation['timestamp']}}</div>
+            <table style="width: 100%;padding: 5px 0 10px 0">
+				{% for i,result in enumerate(evaluation["results"]) %}
+				<tr style="cursor:pointer" onclick="toggle_chart_line(this,{{i}})">
+				<th style="width: 20px"><div style="width:20px;height:20px;border-radius:10px;background:rgb({{255*(1-0.05**(i/len(evaluation["results"])))}},{{255*(1-0.05**(i/len(evaluation["results"])))}},{{255*(1-0.05**(i/len(evaluation["results"])))}})"></div></th>
+				<!--th style="text-align: right;width: 50px">{{i+1}}:</th-->
+				<th style="text-align: center;width: 70px">({{round(result['result'],3)}})</th>
+				<th style="text-align: left">{{result['proposal']['title_unesc']}}</th>
+				</tr>
+				{% end %}
+            </table>
+            <canvas id="result_line_chart" style="height: 300px;width:100%"></canvas>
+        </div>
+    {% end %}
+    <div class="centered hline"></div>
+    <div class="centered category">{{translate("Choices")}}{% if poll['phase']==0 and (is_admin or poll["authorId"] == user["id"] or poll['choiceCreatorLevel']==1) %}<div class="plus" onclick="window.location.href='/choice_create/{{poll['id']}}'"></div>{% end %}</div>
+    <div id = "choices" class="column">
+    {% for choice in choices %}
+        {% module TileChoice(choice,poll) %}
+    {% end %}
+    </div>
+    <div class="centered hline"></div>
+    <div class="centered category">{{translate("Comments")}}<div class="plus" onclick="window.location.href='/comment_create/poll/{{poll['id']}}'"></div></div>
+    {% for comment in comments %}
+        {% module TileComment(comment) %}
+    {% end %}
+    <br>
+{% end %}
+
+{% block right %}
+    <input id="member_search" type="text" placeholder="search" style="width:calc(100% - 30px);margin: 15px 10px 15px 10px;" onkeyup="send_ajax('/user_search_ajax',{groupId:{{group['id']}},search:this.value},update_users_handler)">
+    <div id="users" class="column">
+    {% for member in members %}
+        {% module TileMember(member,group) %}
+    {% end %}
+    </div>
+{% end %}
+
+{% block script %}
+<script>
+min_left_column_width = 300
+min_right_column_width = 300
+
+{% if evaluation is not None %}
+    var ctx_line = document.getElementById("result_line_chart").getContext("2d");
+    var timeFormat= "YYYY-MM-DD HH:mm:ss";
+    var lineChart = new Chart(ctx_line, {
+        type: 'line',
+        data: {
+            datasets: [
+            {% for i,result in enumerate(evaluation["results"]) %}
+            {
+                label: "{{ result['proposal']['title_unesc'] }}",
+                steppedLine: true,
+                fill: false,
+                hidden: false,
+                lineTension: 0,
+                borderWidth: 5,
+                borderColor: 'rgb({{255*(1-0.05**(i/len(evaluation["results"])))}},{{255*(1-0.05**(i/len(evaluation["results"])))}},{{255*(1-0.05**(i/len(evaluation["results"])))}})',
+                pointHoverBorderColor: 'rgb({{255*(1-0.05**(i/len(evaluation["results"])))}},{{255*(1-0.05**(i/len(evaluation["results"])))}},{{255*(1-0.05**(i/len(evaluation["results"])))}})',
+                backgroundColor: 'rgb({{255*(1-0.05**(i/len(evaluation["results"])))}},{{255*(1-0.05**(i/len(evaluation["results"])))}},{{255*(1-0.05**(i/len(evaluation["results"])))}})',
+                pointHoverBackgroundColor: 'rgb({{255*(1-0.05**(i/len(evaluation["results"])))}},{{255*(1-0.05**(i/len(evaluation["results"])))}},{{255*(1-0.05**(i/len(evaluation["results"])))}})',
+                pointRadius: 7,
+                pointHoverRadius: 7,
+                pointBorderWidth: 0,
+                pointHoverBorderWidth: 0,
+                data:[
+                    {% for j,data_point in enumerate(result["all_results"]) %}
+                    {
+                        x: '{{data_point["timestamp"]}}',
+                        y: {{round(data_point["result"],3)}}
+                    }{% if j!=len(result["all_results"])-1 %},{% end %}
+                    {% end %}
+                ]
+            }{% if i!=len(evaluation["results"])-1 %},{% end %}
+            {% end %}]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRation: false,
+            scales:{
+                xAxes: [{
+                    type: 'time',
+                    time:{
+                        parser: timeFormat
+                    }
+                }],
+                yAxes: [{
+                    ticks: {
+                        min: -1,
+                        max: 1
+                    }
+                }]
+            },
+            layout: {
+                padding: {
+                    top: 10,
+                    left: 10,
+                    right: 10
+                }
+            },
+            legend: {
+                position: 'left',
+                display: false
+            }
+        }
+    
+    });
+{% end %}
+</script>
+{% end %}

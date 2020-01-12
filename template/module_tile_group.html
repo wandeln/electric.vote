@@ -1,0 +1,11 @@
+<a href='/group/{{group["id"]}}' class="column" style>
+    <div class="tile group hover">
+        <img class="icon" src="{{ static_url(group["icon_small"]) }}">
+        <div class="textcontainer">
+            <div class="title">{{group["name_unesc"]}}</div>
+            {% if 'motto' in group.keys() %}
+            <div class="body">{{group["motto_unesc"]}}</div>
+            {% end %}
+        </div>
+    </div>
+</a>

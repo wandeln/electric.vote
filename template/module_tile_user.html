@@ -1,0 +1,7 @@
+<div class="tile user hover inactive" onclick="click_user(this,'{{user["username"]}}')" style="cursor:pointer">
+<img class="icon" src="{{ static_url(user["icon_small"]) }}">
+<div class="textcontainer">
+	<div class="title">{{user["name_unesc"]}}</div>
+	<div class="body">{{user["username"]}}</div>
+</div>
+</div>

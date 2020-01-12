@@ -1,0 +1,77 @@
+{% extends "template_center.html" %}
+
+{% block title %}
+{{translate("Add Member")}}
+{% end %}
+
+{% block style %}
+<link rel="stylesheet" href="{{ static_url("column_style.css") }}" type="text/css">
+{% end %}
+
+{% block center %}
+<div style="overflow:hidden">
+    <h1 style="float:left">{{translate("Add Member to")}} {{group['name']}}</h1>
+</div>
+
+<form id="form" action="/group_add_member/{{group['id']}}" method="post">
+    <p1>{{translate("Search")}}</p1>
+    <p1 style="float:right" id="n_users">({{n_members}}/{{n_max_members}})</p1>
+    <input type="text" name="username" id="username" onkeyup="ask_for_suggestions()">
+    <div class="column" id="users" style="margin-bottom: 5px">
+    {% for user in members %}
+        {% module TileUser(user) %}
+    {% end %}
+    </div>
+    <!--input type="button" value="add" onclick="submit_ajax()"-->
+    <input type="button" value="{{translate('Done')}}" onclick="window.location.href='/group/{{group['id']}}'">
+    {% module xsrf_form_html() %}
+</form>
+{% end %}
+
+{% block script %}
+
+<script src="{{static_url("cookie.js")}}"></script>
+<script src="{{static_url("input_script.js")}}"></script>
+
+<script>
+
+var users = []
+var n_members = {{n_members}}
+var n_max_members = {{n_max_members}}
+
+function ask_for_suggestions(){
+    users = []
+    send_ajax('/group_add_member_suggestions/{{group['id']}}',{name:document.getElementById("username").value},update_users_handler);
+}
+
+function do_nothing_handler(data){
+    return
+}
+
+function click_user(element,username){
+    if(n_members>=n_max_members){
+        alert("maximum number of members reached");
+        return;
+    }
+    send_ajax('/group_add_member_ajax/{{group['id']}}',{members:[username]},do_nothing_handler)
+    document.getElementById("username").value = ""
+    send_ajax('/group_add_member_suggestions/{{group['id']}}',{name:document.getElementById("username").value},update_users_handler);
+    n_members+=1;
+    document.getElementById("n_users").innerHTML = "("+n_members+"/"+n_max_members+")";
+    /*
+    if(hasClass(element,"active")){
+        element.classList.remove("active");
+        element.classList.add("inactive");
+        users.splice(users.indexOf(username),1);
+    }else if(hasClass(element,"inactive")){
+        element.classList.remove("inactive");
+        element.classList.add("active");
+        users.push(username);
+    }*/
+}
+
+function submit_ajax(){
+    send_ajax('/group_add_member_ajax/{{group['id']}}',{members:users},redirect_handler)
+}
+</script>
+{% end %}

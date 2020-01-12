@@ -1,0 +1,105 @@
+{% extends "template_column.html" %}
+
+{% block title %}
+{{group["name_unesc"]}}
+{% end %}
+
+{% block bar %}
+<h1 class="padding title">{{group['name_unesc']}}</h1>
+{% end %}
+
+{% block left %}
+    {% module TileProfile(user) %}
+    <a href="/home"><div class="option hover">{{translate("Home")}}</div></a>
+    {% if group['pollCreatorLevel']==1 %}
+		<a href="/poll_create/{{group['id']}}"><div class="option hover">{{translate("Create Poll")}}</div></a>
+    {% end %}
+    <a onclick="if(confirm('do you really want to leave this group?')){window.location.href='/group_leave/{{group['id']}}'}" style="cursor:pointer"><div class="option hover">{{translate("Leave Group")}}</div></a>
+    {% if is_admin %}
+		<div class="option hline"></div>
+		<div class="option_category">{{translate("Admin Options")}}</div>
+		<a href="/group_settings/{{group['id']}}"><div class="option hover">{{translate("Group Settings")}}</div></a>
+		<a href="/group_add_member/{{group['id']}}"><div class="option hover">{{translate("Add Member")}}</div></a>
+		<a href="/group_send_circular/{{group['id']}}"><div class="option hover">{{translate("Send Circular")}}</div></a>
+		<a href="/group_invitation_settings/{{group['id']}}"><div class="option hover">{{translate("Invitation Link")}}</div></a>
+		<a href="/group_make_admin/{{group['id']}}"><div class="option hover">{{translate("Make Admin")}}</div></a>
+		{% if group['pollCreatorLevel']>1 %}
+			<a href="/poll_create/{{group['id']}}"><div class="option hover">{{translate("Create Poll")}}</div></a>
+		{% end %}
+		<a onclick="if(confirm('do you really want to resign as group admin?')){window.location.href='/group_resign/{{group['id']}}'}" style="cursor:pointer"><div class="option hover">{{translate("Resign")}}</div></a>
+		<a href="/group_remove_member/{{group['id']}}"><div class="option hover">{{translate("Remove Member")}}</div></a>
+        {% if n_group_admins <= 1 %}
+			<a onclick="if(confirm('do you really want to delete this group?')){window.location.href='/group_delete/{{group['id']}}'}" style="cursor:pointer"><div class="option hover">{{translate("Delete Group")}}</div></a>
+        {% end %}
+    {% end %}
+{% end %}
+
+{% block center %}
+    {% if is_admin %}
+        <div class="centered icon"><a href="/group_settings/{{group['id']}}"><img class="icon" src="{{ static_url(group["icon"]) }}"></a></div>
+    {% else %}
+        <div class="centered icon"><img class="icon" src="{{ static_url(group["icon"]) }}"></div>
+    {% end %}
+    
+    <div class="centered">
+        <p1 style="padding:0;font-style:italic;width:calc(100% - 20px);">{{group["motto_unesc"]}}</p1>
+        <br style="line-height:150%;">
+        <div class="description">{% raw group["description"] %}</div>
+    </div>
+    
+    <div class="centered hline"></div>
+    <div class="centered category">{{translate("Polls")}}{% if is_admin or group['pollCreatorLevel']==1 %}<div class="plus" onclick="window.location.href='/poll_create/{{group['id']}}'"></div>{% end %}</div>
+    <form class="centered" style="padding:0">
+        <div style="display: flex;flex-wrap:wrap;justify-content:center;">
+            <div class="filterhead" style="">{{translate("Filter")}}:</div>
+            <input type="button" id="openfilter" value="{{translate('Open')}}" class="filter active" onclick="filter(this)">
+            <input type="button" id="votingfilter" value="{{translate('Voting')}}" class="filter active" onclick="filter(this)">
+            <input type="button" id="closedfilter" value="{{translate('Closed')}}" class="filter active" onclick="filter(this)">
+        </div>
+    </form>
+    <div class="column" id="polls">
+    {% for poll in polls %}
+        {% module TilePoll(poll) %}
+    {% end %}
+    {% if len(polls) == 0 %}
+    <div class="no_polls">{{translate("no polls")}}</div>
+    {% end %}
+    </div>
+    
+    <div class="centered hline"></div>
+    <div class="centered category">{{translate("Comments")}}<div class="plus" onclick="window.location.href='/comment_create/group/{{group['id']}}'"></div></div>
+    {% for c in comments %}
+        {% module TileComment(c) %}
+    {% end %}
+    <br>
+{% end %}
+
+{% block right %}
+    <input id="member_search" type="text" placeholder="search" style="width:calc(100% - 30px);margin: 15px 10px 15px 10px;" onkeyup="send_ajax('/user_search_ajax',{groupId:{{group['id']}},search:this.value},update_users_handler)">
+    <div id="users" class="column">
+    {% for member in members %}
+        {% module TileMember(member,group) %}
+    {% end %}
+    </div>
+{% end %}
+
+{% block script %}
+<script src="{{static_url("input_script.js")}}"></script>
+<script>
+min_left_column_width = 300
+min_right_column_width = 300
+
+function filter(element){
+    if(hasClass(element,"active")){
+        element.classList.remove("active");
+        element.classList.add("inactive");
+    }else if(hasClass(element,"inactive")){
+        element.classList.remove("inactive");
+        element.classList.add("active");
+    }
+    send_ajax('/group_ajax/{{group['id']}}',{open:hasClass(document.getElementById('openfilter'),"active"),
+    voting:hasClass(document.getElementById('votingfilter'),"active"),
+    closed:hasClass(document.getElementById('closedfilter'),"active")},update_polls_handler)
+}
+</script>
+{% end %}

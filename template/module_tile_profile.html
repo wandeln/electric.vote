@@ -1,0 +1,10 @@
+<div class="tile user hover">
+<img class="icon" onclick="location.href='/user/{{user["username"]}}'" src="{{ static_url(user["icon_small"]) }}">
+<div class="textcontainer">
+    <div class="title"><a href="/user/{{user["username"]}}">{{user["name_unesc"]}}</a></div>
+    <div class="body">
+        <a href="/user/{{user["username"]}}" style="width:100%;display:block">{{user["username"]}}</a>
+        <a href="/logout" style="width:fit-content;display:block">{{translate("Logout")}}</a>
+    </div>
+</div>
+</div>

@@ -1,0 +1,44 @@
+{% extends "template_column.html" %}
+
+{% block title %}
+{{user["name_unesc"]}}
+{% end %}
+
+{% block bar %}
+<h1 class="padding title">{{ user["name_unesc"] }}</h1>
+{% end %}
+
+{% block left %}
+    {% module TileProfile(user_me) %}
+    <a href="/home"><div class="option hover">{{translate("Home")}}</div></a>
+    {% if is_owner %}
+    <a href="/user_settings"><div class="option hover">{{translate("Profile Settings")}}</div></a>
+    <a onclick="if(confirm('do you really want to delete your account? (this cannot be made undone)')){window.location.href='/user_delete'}" style="cursor:pointer"><div class="option hover">{{translate("Delete Account")}}</div></a>
+    {% end %}
+{% end %}
+
+{% block center %}
+    {% if is_owner %}
+        <div class="centered icon"><a href="/user_settings"><img class="icon" src="{{ static_url(user["icon"]) }}"></a></div>
+    {% else %}
+        <div class="centered icon"><img class="icon" src="{{ static_url(user["icon"]) }}"></div>
+    {% end %}
+    <div class="centered">
+        <p1 style="padding:0;font-style:italic;width:calc(100% - 20px)">{{user["username"]}}</p1>
+        <br style="line-height:150%;">
+        <div class="description">{% raw user["description"] %}</div>
+    </div>
+    
+    <div class="centered hline"></div>
+    <div class="centered category">{{translate("Comments")}}</div>
+    {% for comment in comments %}
+        {% module TileComment(comment) %}
+    {% end %}
+    <br>
+{% end %}
+
+{% block right %}
+    {% for group in groups %}
+        {% module TileGroup(group) %}
+    {% end %}
+{% end %}

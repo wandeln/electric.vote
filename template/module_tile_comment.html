@@ -1,0 +1,14 @@
+<div class="tile centered hover">
+<div class="timestamp"><a href="/user/{{comment['authorUsername']}}">{{comment["authorName_unesc"]}}, {{ comment["timestamp"] }}</a></div>
+<div class="tags">
+{% for tag in comment['tags'] %}
+    <div class="tag"><a href="/{{tag['link']}}/{{tag['id']}}">> {{tag['tag_unesc'] }}</a></div>
+{% end %}
+{% if comment['n_answers'] == 1 %}
+<div class="tag"><a href="/comment/{{comment['id']}}">{{comment['n_answers']}} reply</a></div>
+{% elif comment['n_answers'] >= 1 %}
+<div class="tag"><a href="/comment/{{comment['id']}}">{{comment['n_answers']}} replies</a></div>
+{% end %}
+</div>
+<div class="body" onclick="location.href='/comment/{{comment['id']}}'" style="cursor:pointer">{% raw comment["content"] %}</div>
+</div>

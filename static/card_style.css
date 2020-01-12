@@ -1,0 +1,27 @@
+:root{
+    --card-dist: 10px;
+}
+
+div.tile{
+    background: rgb(255,255,255);
+    margin: var(--card-dist) calc(2 * var(--card-dist)) var(--card-dist) calc(2 * var(--card-dist));
+    padding: 5px;
+    border-radius: 5px;
+    box-shadow: 0 0 3px rgba(0,0,0,0.9);
+    overflow: hidden;
+    /*display: flex;
+    flex-wrap: wrap;
+    min-height: 100px;*/
+}
+
+img.icon{
+    width: 50px;
+    height: 50px;
+    margin: 5px;
+    border-radius: 25px;
+    box-shadow: 0 0 3px rgba(0,0,0,0.9);
+}
+
+h1{
+    width: auto;
+}

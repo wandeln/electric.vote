@@ -1,0 +1,128 @@
+{% extends "template_center.html" %}                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+
+{% block title %}
+{{translate("Sign Up")}}
+{% end %}
+
+{% block embedding %}
+{% raw translate("welcome sign up") %}
+{% end %}
+
+{% block center %}
+{% set next_arg = globals().get('next_arg', None) %}
+<div style="overflow:hidden">
+    <h1 style="float:left">{{translate("Sign Up")}}</h1>
+    {% if next_arg is not None %}
+    <h1 style="float:right;color:rgb(100,100,100);"><a href="login?next={{next_arg}}">> {{translate("Login")}}</a></h1>
+    {% else %}
+    <h1 style="float:right;color:rgb(100,100,100);"><a href="login">> {{translate("Login")}}</a></h1>
+    {% end %}
+</div>
+
+{% if next_arg is not None %}
+<div>
+<form id="form" action="signup?next={{next_arg}}" method="post">
+{% else %}
+<form id="form" action="signup" method="post">
+{% end %}
+    <p1>{{translate("Name")}}</p1><br>
+    <p1 class="remark" id="name_remark"></p1>
+    <input type="text" name="name" id="name" onchange="check_name()" onkeyup="check_name()">
+    <p1>{{translate("Username")}}</p1><br>
+    <p1 class="remark" id="username_remark"></p1>
+    <input type="text" name="username" id="username" onchange="check_username()" onkeyup="check_username()">
+    <p1>{{translate("E-mail")}}</p1><br>
+    <p1 class="remark" id="email_remark"></p1>
+    <input type="email" name="email" id="email" onchange="check_email()" onkeyup="check_email()">
+    <p1>{{translate("Password")}}</p1><br>
+    <p1 class="remark" id="password1_remark"></p1>
+    <input type="password" name="password1" id="password1" onchange="check_password1()" onkeyup="check_password1()">
+    <!--p1>repeat password</p1><br>
+    <p1 class="remark" id="password2_remark"></p1>
+    <input type="password" name="password2" id="password2" onchange="check_password2()" onkeyup="check_password2()"-->
+    <div class="remark" id="accept_remark" style="width:100%"></div>
+    <input type="checkbox" id="accept" name="accept" onclick="check_accept()">
+    {% raw translate("sign up conditions") %}
+    <div style="min-height:7px;min-width:100%;"></div>
+    <input type="button" value="{{translate('Sign Up')}}" onclick="submit_signup()">
+    {% module xsrf_form_html() %}
+</form>
+</div>
+{% end %}
+
+{% block script %}
+<script>
+function submit_signup(){
+    document.getElementById("username").value = trim(document.getElementById("username").value)
+    document.getElementById("name").value = trim(document.getElementById("name").value);
+    if(check_username()&&check_name()&&check_password1()&&check_password2()&&check_email()&&check_accept()){
+        document.getElementById('form').submit()
+    }
+}
+function check_username(){
+    document.getElementById("username").value = ltrim(document.getElementById("username").value)
+    username = document.getElementById("username").value;
+    if(!validUsername(username)){
+        document.getElementById("username_remark").innerHTML='{{translate("username must consist of at least 4 letters. Only a-z,A-Z,.,_ are allowed")}}';
+        return false;
+    }else{
+        document.getElementById("username_remark").innerHTML="";
+        return true;
+    }
+}
+function check_name(){
+    document.getElementById("name").value = ltrim(document.getElementById("name").value);
+    name = document.getElementById("name").value;
+    if(name=""){
+        document.getElementById("name_remark").innerHTML='{{translate("name must not be empty")}}';
+        return false;
+    }else{
+        document.getElementById("name_remark").innerHTML="";
+        return true;
+    }
+}
+function check_email(){
+    email = document.getElementById("email").value;
+    if(!validEmail(email)){
+        document.getElementById("email_remark").innerHTML='{{translate("please enter a valid email")}}';
+        return false;
+    }else{
+        document.getElementById("email_remark").innerHTML="";
+        return true;
+    }
+}
+function check_accept(){
+    if(document.getElementById("accept").checked==false){
+        document.getElementById("accept_remark").innerHTML='{{translate("please accept our conditions")}}';
+        return false;
+    }else{
+        document.getElementById("accept_remark").innerHTML="";
+        return true;
+    }
+}
+function check_password1(){
+    pw = document.getElementById("password1").value;
+    if(!validPassword(pw)){
+        document.getElementById("password1_remark").innerHTML='{{translate("password must consist of at least 8 letters, a lower and an upper case character and a digit")}}';
+        return false;
+    }else{
+        document.getElementById("password1_remark").innerHTML="";
+        return true;
+    }
+}
+function check_password2(){
+    return true;
+    pw1 = document.getElementById("password1").value;
+    pw2 = document.getElementById("password2").value;
+    if(pw1 != pw2){
+        document.getElementById("password2_remark").innerHTML="passwords must be equal";
+        return false;
+    }else{
+        document.getElementById("password2_remark").innerHTML="";
+        return true;
+    }
+}
+</script>
+<script src="{{static_url("cookie.js")}}"></script>
+<script src="{{static_url("input_script.js")}}"></script>
+{% end %}

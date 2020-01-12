@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+        <meta charset="UTF-8">
+        <title>{% block title %}{% end %}</title>
+        {% block style %}{% end %}
+        <link rel="stylesheet" href="{{ static_url("center_style.css") }}" type="text/css">
+        <link rel="stylesheet" href="{{ static_url("input_style.css") }}" type="text/css">
+        <link rel="shortcut icon" href="{{ static_url("icons/icon.png") }}" type="image/x-icon">
+        <script src="{{static_url("center_script.js")}}"></script>
+        <meta name="referrer" content="no-referrer">
+        <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline'">
+    </head>
+    <body>
+        <div id="center" class="center">
+            {% block embedding %}{% end %}
+            <div id="card" class="card">
+                {% block center %}{% end %}
+            </div>
+        </div>
+        <div class="footer">
+			<div style="padding-right:0">&copy</div> <div style="padding-left:02px">2020 electric.vote</div> <a href="https://youtube.com/watch?v=D_cWekes_3M">{{translate("Tutorial")}}</a> <a href="mailto:feedback@electric.vote">{{translate("Feedback")}}</a> <a href="/legal/donation">{{translate("Donation")}}</a> <a href="/legal/imprint">{{translate("Imprint / Disclaimer")}}</a>
+			<form enctype="multipart/form-data" id="language_form" action="/change_language" method="post" style="color:inherit;background:inherit"><select class="select_footer" style="" name="language" onchange="document.getElementById('language_form').submit();setTimeout(function(){location.reload()},500)"><option value="en" {% if translate("language_ID") == "en" %} selected="selected" {% end %}>English</option><option value="de" {% if translate("language_ID") == "de" %} selected="selected" {% end %}>Deutsch</option> </select>{% module xsrf_form_html() %}</form>
+        </div>
+    </body>
+    
+    <script src="{{ static_url("apis/jquery.min.js") }}"></script>
+    <script src="{{static_url("ajax.js")}}"></script>
+    
+    {% set alert = globals().get('alert', None) %}
+    {% if alert is not None %}
+    <script>alert("{{alert}}")</script>
+    {% end %}
+
+    {% block script %}{% end %}
+</html>

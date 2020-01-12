@@ -1,0 +1,39 @@
+{% extends "template_center.html" %}                
+
+{% block title %}
+{{translate("Login")}}
+{% end %}
+
+{% block embedding %}
+{% raw translate('welcome login') %}
+{% end %}
+
+{% block center %}
+{% set next_arg = globals().get('next_arg', None) %}
+<div style="overflow:hidden">
+    <h1 style="float:left">{{translate("Login")}}</h1>
+    
+    {% if next_arg is not None %}
+    <h1 style="float:right;color:rgb(100,100,100);"><a href="signup?next={{next_arg}}">> {{translate("Sign Up")}}</a></h1>
+    {% else %}
+    <h1 style="float:right;color:rgb(100,100,100);"><a href="signup">> {{translate("Sign Up")}}</a></h1>
+    {% end %}
+</div>
+
+{% if next_arg is not None %}
+<form id="form" action="login?next={{next_arg}}" method="post">
+{% else %}
+<form id="form" action="login" method="post">
+{% end %}
+    <p1>{{translate("Username")}}</p1>
+    <input type="text" name="username">
+    <p1>{{translate("Password")}}</p1>
+    <input type="password" name="password" onkeypress="if(event.keyCode==13){document.getElementById('form').submit()}">
+    <input type="button" value="{{translate('Login')}}" onclick="document.getElementById('form').submit()">
+    {% module xsrf_form_html() %}
+</form>
+{% end %}
+
+{% block script %}
+<script src="{{static_url("cookie.js")}}"></script>
+{% end %}

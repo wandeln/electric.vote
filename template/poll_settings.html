@@ -1,0 +1,37 @@
+{% extends "template_center.html" %}
+
+{% block title %}
+{{translate("Poll Settings")}}
+{% end %}
+
+{% block center %}
+<div style="overflow:hidden">
+    <h1 style="float:left">{{translate("Poll")}}</h1>
+</div>
+
+<form enctype="multipart/form-data" id="form" action="/poll_settings/{{poll['id']}}" method="post">
+    <p1>{{translate("Name")}}</p1><br>
+    <p1 class="remark" id="title_remark"></p1>
+    <input type="text" name="title" placeholder="{{poll['title_unesc']}}" id="title">
+    <p1>{{translate("Picture")}}</p1><br>
+    <input type="file" name="picture" id="picture" accept="image/x-png,image/gif,image/jpg">
+    <p1>{{translate("Description")}}</p1>
+    <textarea name="description">{{poll['description_unesc']}}</textarea>
+    <input type="checkbox" id="mccc" name="mccc" {% if poll['choiceCreatorLevel']<=1%}checked{% end %}><label for="mccc">{{translate("Members can create choices")}}</label><div style="min-height:7px;min-width:100%;"></div>
+    <input type="button" value="{{translate('Save')}}" onclick="document.getElementById('form').submit();disable_inputs()">
+    <input type="button" value="{{translate('Cancel')}}" onclick="javascript:history.back()">
+    {% module xsrf_form_html() %}
+</form>
+
+{% end %}
+
+{% block script %}
+
+{% set alert = globals().get('alert', None) %}
+{% if alert is not None %}
+<script>alert("{{alert}}")</script>
+{% end %}
+
+<script src="{{static_url("input_script.js")}}"></script>
+<script src="{{static_url("cookie.js")}}"></script>
+{% end %}

@@ -1,0 +1,17 @@
+{% extends "../template_column.html" %}
+
+{% block left %}
+    {% if user is not None %}
+        {% module TileProfile(user) %}
+        <a href="/home"><div class="option hover">{{translate("Home")}}</div></a>
+    {% else %}
+        <a href="/login"><div class="option hover">{{translate("Login")}}</div></a>
+        <a href="/signup"><div class="option hover">{{translate("Sign Up")}}</div></a>
+    {% end %}
+{% end %}
+
+{% block right %}
+<a href="/legal/imprint"><div class="option hover">{{translate("Imprint")}}</div></a>
+<a href="/legal/donation"><div class="option hover">{{translate("Donation")}}</div></a>
+<a href="/legal/terms_of_use"><div class="option hover">{{translate("Terms of Use")}}</div></a>
+{% end %}

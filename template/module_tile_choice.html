@@ -1,0 +1,17 @@
+<div class="tile centered hover choice">
+<div class="title"><a href="/choice/{{choice['id']}}">{{choice["title_unesc"]}}</a></div>
+<a href='/choice/{{choice["id"]}}'><img style="width:100%;max-height:300px;object-fit:cover;;margin: 10px 0 10px 0;" src="{{ static_url(choice["icon"]) }}"></a>
+<div class="timestamp"><a href="/user/{{choice['authorUsername']}}">{{choice["authorName_unesc"]}}, {{ choice["timestamp"] }}</a></div>
+<div class="body">{% raw choice["description"] %}</div>
+<form id="form_choice_{{choice["id"]}}" action="/choice_vote/{{choice["id"]}}/poll" method="post">
+    {% if choice['vote'] is not None %}
+    <div class="slider_label" id="slider_label_{{choice["id"]}}">{{translate("Direct Vote")}}: {{round(choice["vote"],3)}} {% if choice["vote"]<-1/3 %}(CONTRA){% elif choice["vote"]<1/3 %}(NEUTRAL){% else %}(PRO){%end%}</div>
+    <input type="range" min="-1" max="1" value="{{choice["vote"]}}" id="slider_{{choice["id"]}}" class="slider" step="any" name="vote" onmouseup="update_slider({{choice['id']}})" ontouchend="update_slider({{choice['id']}})" style="margin-top:7px;{% if poll['phase']==2 %}pointer-events:none{% end %}">
+    {% else %}
+    <div class="slider_label" id="slider_label_{{choice["id"]}}">{{translate("Delegated Vote")}}{% if poll['phase']<2 %} ({{translate("click below to vote directly")}}){% end %}</div>
+    <input type="range" min="-1" max="1" value="0" id="slider_{{choice["id"]}}" class="slider untouched" step="any" name="vote" onmouseup="this.classList.remove('untouched');update_slider({{choice['id']}})" ontouchend="
+        this.classList.remove('untouched');update_slider({{choice['id']}})" style="margin-top:7px;{% if poll['phase']==2 %}pointer-events:none{% end %}">
+    {% end %}
+    {% module xsrf_form_html() %}
+</form>
+</div>

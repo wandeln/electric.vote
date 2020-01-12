@@ -1,0 +1,61 @@
+{% extends "template_column.html" %}
+
+{% block title %}
+{{translate("Home")}}
+{% end %}
+
+{% block bar %}
+<h1 class="padding title">{{translate("Home")}}</h1>
+{% end %}
+
+{% block left %}
+    {% module TileProfile(user) %}
+    <a href="/group_create"><div class="option hover">{{translate("New Group")}}</div></a>
+{% end %}
+
+{% block center %}
+    <!--h1 style="text-align:center;padding:5px;"> Hi {{user['name']}}, welcome to electric vote! </h1-->
+    <br>
+    <form class="centered" style="padding:0">
+        <div style="display: flex;flex-wrap:wrap;justify-content:center;">
+            <div class="filterhead" style="">{{translate("Filter")}}:</div>
+            <input type="button" id="openfilter" value="{{translate('Open')}}" class="filter active" onclick="filter(this)">
+            <input type="button" id="votingfilter" value="{{translate('Voting')}}" class="filter active" onclick="filter(this)">
+            <input type="button" id="closedfilter" value="{{translate('Closed')}}" class="filter active" onclick="filter(this)">
+        </div>
+    </form>
+    <div id="polls" class="column">
+    {% for poll in polls %}
+        {% module TilePoll(poll) %}
+    {% end %}
+    {% if len(polls) == 0 %}
+    <div class="no_polls">{{translate("no polls")}}</div>
+    {% end %}
+    </div>
+    <br>
+{% end %}
+
+{% block right %}
+    {% for group in groups %}
+        {% module TileGroup(group) %}
+    {% end %}
+{% end %}
+
+{% block script %}
+<script src="{{static_url("cookie.js")}}"></script>
+<script src="{{static_url("input_script.js")}}"></script>
+<script>
+function filter(element){
+    if(hasClass(element,"active")){
+        element.classList.remove("active");
+        element.classList.add("inactive");
+    }else if(hasClass(element,"inactive")){
+        element.classList.remove("inactive");
+        element.classList.add("active");
+    }
+    send_ajax('/home_ajax',{open:hasClass(document.getElementById('openfilter'),"active"),
+    voting:hasClass(document.getElementById('votingfilter'),"active"),
+    closed:hasClass(document.getElementById('closedfilter'),"active")},update_polls_handler)
+}
+</script>
+{% end %}

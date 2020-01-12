@@ -1,0 +1,47 @@
+{% extends "template_legal.html" %}
+
+{% block title %}
+{{translate("Donation")}}
+{% end %}
+
+{% block bar %}
+<h1 class="padding title">{{translate("Donation")}}</h1>
+
+<style>
+    .text a{display:unset;width: auto;text-decoration:underline}
+    p{text-align: justify}
+</style>
+{% end %}
+
+{% block center %}
+    <div class="centered text">
+        <h2>We need you!</h2>
+        <p>Electric vote brings delegative democracy for free to everyone. One of our main principles is to renounce any kind of advertisement in order to stay a neutral platform that allows for objective discussions and fair polls. However, developping and maintaining the necessary infrastructure costs quite a bit of money. So how can we stay alive? That's where you come into play!</p>
+        <p>
+        By donating, you're helping us to keep electric.vote alive and to push delegative democracy onto a new level.
+        </p>
+        <table>
+        <tr><th style="text-align: left;width:80px">name:</th><th style="text-align: left"> Nils Wandel</th></tr>
+        <tr><th style="text-align: left">bank:</th><th style="text-align: left"> Sparkasse Köln-Bonn</th></tr>
+        <tr><th style="text-align: left">IBAN:</th><th style="text-align: left"> DE57 3705 0198 1934 6058 98</th></tr>
+        <tr><th style="text-align: left">BIC:</th><th style="text-align: left"> COLSDE33XXX</th></tr>
+        </table>
+        <br>
+        or via paypal:
+        <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top" style="width:100px;height:50px">
+            <input type="hidden" name="cmd" value="_s-xclick" />
+            <input type="hidden" name="hosted_button_id" value="AVE4YAYWP7M8J" />
+            <input type="image" src="https://www.paypalobjects.com/en_US/DK/i/btn/btn_donateCC_LG.gif" border="0" name="submit" title="PayPal - The safer, easier way to pay online!" alt="Donate with PayPal button" />
+            <img alt="" border="0" src="https://www.paypal.com/en_DE/i/scr/pixel.gif" width="1" height="1" />
+        </form>
+        <br>
+        <h2>Thank you so much!</h2>
+        <p>
+        In case you want to get mentioned as a donor: just leave a comment in the subject line and we'll show you in the list below.
+        </p>
+        <h2>Donors</h2>
+        <table>
+        <tr><th style="text-align: left">Helmut Darmüntzel</th></tr>
+        </table>
+    </div>
+{% end %}

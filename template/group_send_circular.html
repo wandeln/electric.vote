@@ -1,0 +1,30 @@
+{% extends "template_center.html" %}
+
+{% block title %}
+{{translate("Circular")}}
+{% end %}
+
+{% block center %}
+<div style="overflow:hidden">
+    <h1 style="float:left">{{translate("Circular")}}</h1>
+</div>
+
+<form id="form" action="/group_send_circular/{{group['id']}}" method="post">
+    <p1>{{translate("Circular")}}</p1>
+    <textarea name="content"></textarea>
+    <input type="button" value="{{translate('Submit')}}" onclick="document.getElementById('form').submit();disable_inputs()">
+    <input type="button" value="{{translate('Cancel')}}" onclick="javascript:history.back()">
+    {% module xsrf_form_html() %}
+</form>
+{% end %}
+
+{% block script %}
+
+{% set alert = globals().get('alert', None) %}
+{% if alert is not None %}
+<script>alert("{{alert}}")</script>
+{% end %}
+
+<script src="{{static_url("cookie.js")}}"></script>
+<script src="{{static_url("input_script.js")}}"></script>
+{% end %}

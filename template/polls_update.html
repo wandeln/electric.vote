@@ -1,0 +1,6 @@
+{% for poll in polls %}
+    {% module TilePoll(poll) %}
+{% end %} 
+{% if len(polls) == 0 %}
+<div class="no_polls">{{translate("no polls")}}</div>
+{% end %}

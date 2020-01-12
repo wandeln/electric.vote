@@ -1,0 +1,6 @@
+<div class="tile centered hover">
+<div class="title"><a href='/poll/{{poll["id"]}}'>{{poll["title_unesc"]}}</a></div>
+<a href='/poll/{{poll["id"]}}'><img style="width:100%;max-height:300px;object-fit:cover;;margin: 10px 0 10px 0;" src="{{ static_url(poll["icon"]) }}"></a>
+<div class="timestamp"><a href="/user/{{poll['authorUsername']}}" style="width: fit-content;display:contents">{{poll["authorName_unesc"]}}, {{ poll["timestamp"] }},</a> {% if poll['secret'] %}{{translate("Secret")}}{% else %}{{translate("Not Secret")}}{% end %}, {% if poll['phase']==0 %}{{translate("Open")}}{% elif poll['phase']==1 %}{{translate("Voting")}}{% else %}{{translate("Closed")}}{% end %}</div>
+<div class="body">{% raw poll["description"] %}</div>
+</div>

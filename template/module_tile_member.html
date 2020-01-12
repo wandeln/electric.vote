@@ -1,0 +1,16 @@
+<div class="tile user hover">
+<img class="icon" onclick="location.href='/user/{{member["username"]}}'" src="{{ static_url(member["icon_small"]) }}">
+<div class="textcontainer">
+	<a href="/user/{{member["username"]}}">
+        <div class="title">{{member["name_unesc"]}}</div>
+        <div class="body">
+            {{member["username"]}}
+            {% if member['isAdmin'] %}
+                (admin)
+            {% end %}
+            - {{round(member["weight_fraction"]*100)}}%
+        </div>
+    </a>
+        <input type="range" min="0" max="1" value="{{member['weight']}}" class="slider" step="any" name="weight" onmouseup="send_ajax('/user_follow_ajax',{groupId:{{group['id']}},username:'{{member["username"]}}',weight:this.value,search:document.getElementById('member_search').value},update_users_handler)" ontouchend="send_ajax('/user_follow_ajax',{groupId:{{group['id']}},username:'{{member["username"]}}',weight:this.value,weight:this.value,search:document.getElementById('member_search').value},update_users_handler)">
+</div>
+</div>

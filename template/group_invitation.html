@@ -1,0 +1,24 @@
+{% extends "template_center.html" %}
+
+{% block title %}
+{{translate("Invitation Link")}}
+{% end %}
+
+{% block center %}
+<div style="overflow:hidden">
+    <h1 style="float:left">{{translate("Invitation Link")}}</h1>
+</div>
+
+<input type="text" id="invitation_link" value="{{link}}" placeholder="{{translate('no invitation link')}}" readonly>
+
+<input type="button" value="{{translate('copy to clipboard')}}" onclick="document.getElementById('invitation_link').select();document.execCommand('copy')">
+<div style="display:flex;justify-content:space-between;margin-top:5px">
+    <input type="button" value="{{translate('New')}}" onclick="window.location.href='/group_new_invitation_key/{{group['id']}}'" style="margin:0">
+    <input type="button" value="{{translate('Delete')}}" onclick="window.location.href='/group_reset_invitation_key/{{group['id']}}'" style="margin:0">
+    <input type="button" value="{{translate('Done')}}" onclick="window.location.href='/group/{{group['id']}}'" style="margin:0">
+</div>
+{% end %}
+
+{% block script %}
+<script src="{{static_url("cookie.js")}}"></script>
+{% end %}

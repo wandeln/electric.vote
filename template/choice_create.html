@@ -1,0 +1,34 @@
+{% extends "template_center.html" %}
+
+{% block title %}
+{{translate("Create Choice")}}
+{% end %}
+
+{% block center %}
+<div style="overflow:hidden">
+    <h1 style="float:left">{{translate("Choice")}}</h1>
+</div>
+
+<form enctype="multipart/form-data" id="form" action="/choice_create/{{pollId}}" method="post">
+    <p1>{{translate("Title")}}</p1>
+    <input type="text" name="title">
+    <p1>{{translate("Picture")}}</p1><br>
+    <input type="file" name="picture" id="picture" accept="image/x-png,image/gif,image/jpg">
+    <p1>{{translate("Description")}}</p1>
+    <textarea name="description"></textarea>
+    <input type="button" value="{{translate('Create')}}" onclick="document.getElementById('form').submit();disable_inputs()">
+    <input type="button" value="{{translate('Cancel')}}" onclick="javascript:history.back()">
+    {% module xsrf_form_html() %}
+</form>
+{% end %}
+
+{% block script %}
+
+{% set alert = globals().get('alert', None) %}
+{% if alert is not None %}
+<script>alert("{{alert}}")</script>
+{% end %}
+
+<script src="{{static_url("cookie.js")}}"></script>
+<script src="{{static_url("input_script.js")}}"></script>
+{% end %}
