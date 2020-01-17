@@ -40,10 +40,10 @@ install anaconda3 and the following packages:
 ## set up certificates / passwords file
 1. create folder /Certificates.
 2. copy the certificate file ("mykey.crt") and key file ("mykey.key") into this folder.
-3. create a passwords.py file containing the following specifications:
-email_password = "..."
-database_username = "..."
-database_password = "..."
+3. create a passwords.py file containing the following specifications:  
+email_password = "..."  
+database_username = "..."  
+database_password = "..."  
 cookie_secret = "..."
 
 ## start the server
@@ -56,9 +56,9 @@ the evaluation service will regularly keep the results of open / voting polls up
 
 ## emails
 incoming emails are forwarded to electric.vote@gmail.com
-outgoing emails can be sent over the following smtp server:
-smtp_server = "mail.privateemail.com"
-sender_email = "info@electric.vote"
+outgoing emails can be sent over the following smtp server:  
+smtp_server = "mail.privateemail.com"  
+sender_email = "info@electric.vote"  
 password = as specified in Certificates/passwords.py
 
 # how to read the code?
